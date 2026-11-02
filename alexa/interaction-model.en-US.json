@@ -1,0 +1,20 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "janat azan",
+      "intents": [
+        { "name": "NextPrayerIntent", "samples": ["what is the next prayer", "next prayer", "when is the next prayer"] },
+        { "name": "ConnectIntent", "samples": ["connect", "connect my location", "set up my location"] },
+        { "name": "PlayAdhanIntent", "samples": ["play adhan", "play the adhan", "play azan"] },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.PauseIntent", "samples": [] },
+        { "name": "AMAZON.ResumeIntent", "samples": [] },
+        { "name": "AMAZON.FallbackIntent", "samples": [] },
+        { "name": "AMAZON.NavigateHomeIntent", "samples": [] }
+      ],
+      "types": []
+    }
+  }
+}

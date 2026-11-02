@@ -2,7 +2,7 @@
 
 A simpler, Alexa-first adhan companion for [Janat](https://janat.uably.com). No Mac mini, always-on laptop, Voice Monkey, Amazon account cookies, or new Janat account.
 
-**This is a working initial implementation, not a deployed or certified Alexa skill. Automatic prayer-time playback is not implemented.** Amazon currently restricts custom routine triggers to a developer preview and requires a published skill. A Cloudflare cron cannot bypass those requirements.
+**This is a working initial implementation, not a certified Alexa skill. Automatic prayer-time playback is not implemented.** The public companion test site is intended for `https://azan.melkhouly.workers.dev`; publishing the companion does not configure or certify Alexa. Amazon currently restricts custom routine triggers to a developer preview and requires a published skill. A Cloudflare cron cannot bypass those requirements.
 
 ## What works locally
 
@@ -28,7 +28,7 @@ Open `http://localhost:8787`. Use device location or enter approximate coordinat
 
 `npm run build` produces `dist/web/` (companion assets) and `dist/lambda/index.mjs` (Alexa Lambda bundle). Worker deployment uses `src/worker.ts` through Wrangler. `npm run check` type-checks, runs unit/Workers integration tests, and builds both bundles. No real cloud credentials are needed for those checks.
 
-The zero database UUID is deliberately a deployment placeholder, not a cloud database. `db:local` initializes only local Wrangler storage. No deployment occurs during `build`, `test`, `check`, or `dev`.
+The tracked configuration targets the existing production Worker `azan` and D1 database `azan`. `db:local` initializes only local Wrangler storage; `npm run dev` pins port 8787 and overrides `PUBLIC_ORIGIN` to `http://localhost:8787` so local connection links and same-origin writes stay local. No deployment occurs during `build`, `test`, `check`, or `dev`. Production deployment requires owner approval; see the [setup guide](docs/DEPLOYMENT.md).
 
 ## First Alexa experience after setup
 
@@ -45,4 +45,4 @@ These are implemented request/response flows, tested locally with Alexa-shaped e
 - [Alexa capabilities and automatic-playback blockers](docs/ALEXA.md): official references, permission/certification gates, and a future idempotent-delivery plan.
 - [Cloudflare/GitHub deployment](docs/DEPLOYMENT.md): owner-controlled setup, secrets, rollback, and real-device acceptance checklist.
 
-Nothing in this repository has been pushed or deployed by its setup scripts. A project source-code license has not yet been selected by the owner; public hosting does not grant a license. The `adhan` and `zod` dependencies are MIT-licensed; see their bundled licenses. No audio recording is included.
+Local checks and development commands do not push or deploy; production publishing uses the owner-approved release flow. A project source-code license has not yet been selected by the owner; public hosting does not grant a license. The `adhan` and `zod` dependencies are MIT-licensed; see their bundled licenses. No audio recording is included.

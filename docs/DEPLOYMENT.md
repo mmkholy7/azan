@@ -1,6 +1,6 @@
 # Cloudflare and GitHub setup
 
-This is a future, owner-operated checklist, not evidence that resources exist. Do not enter credentials into chat or commit them. No service is provisioned automatically.
+This is an owner-operated checklist, not evidence of a successful production deployment. The existing Cloudflare Worker and D1 database are both named `azan`. Do not enter credentials into chat or commit them. Local setup does not provision cloud services.
 
 ## Hosting choice
 
@@ -17,25 +17,28 @@ npm run db:local
 npm run dev
 ```
 
-Open `http://localhost:8787`. A timezone is initially suggested from the browser, but must be checked against the selected location. Location is rounded to three decimal places by the optional device-location button. Manual coordinates are accepted as entered.
+Open `http://localhost:8787`. `npm run dev` pins this port and overrides the production `PUBLIC_ORIGIN` for local connection links and same-origin writes. Use that script rather than bare `wrangler dev`, which would retain the production origin. `db:local` and `dev` use local D1 storage, not the remote database. A timezone is initially suggested from the browser, but must be checked against the selected location. Location is rounded to three decimal places by the optional device-location button. Manual coordinates are accepted as entered.
 
 For local bridge experiments, copy `.dev.vars.example` to `.dev.vars` and populate its two values with separate cryptographically random secrets of at least 32 characters. Keep that file private. The automated test fixtures use public test-only keys in isolated, ephemeral D1; they are not production credentials.
 
-## 2. Cloudflare provisioning (requires owner's approval and account)
+## 2. Cloudflare deployment (requires owner's approval and account)
 
-After the owner decides to deploy and signs in to Wrangler themselves:
+The tracked `wrangler.jsonc` targets the GitHub-connected Worker `azan`, with exactly one `DB` binding to the existing D1 database `azan` (`df291c5d-1cad-4a05-8959-f6e2b5001949`) and the existing `migrations` directory. Do not create a replacement database or append a second `DB` binding to fix a deployment. Database IDs are resource identifiers, not credentials.
 
-```sh
-npx wrangler d1 create azan
-```
+The intended production origin is `https://azan.melkhouly.workers.dev`, without a trailing slash or path. The route was disabled when this fix was prepared; `workers_dev: true` explicitly requests enabling it on the next approved deploy. Editing this file alone does not enable the live route. If choosing a custom domain later, configure its routing and update `PUBLIC_ORIGIN` and Lambda `API_ORIGIN` together.
 
-Replace the zero `database_id` in `wrangler.jsonc` with the returned ID. Decide the production origin (a `workers.dev` origin is enough; a custom domain such as `azan.uably.com` is optional and requires DNS ownership). Set `vars.PUBLIC_ORIGIN` to the exact HTTPS origin, **without a trailing slash or path**.
+After the owner approves cloud changes, sign in to Wrangler and verify the intended account and existing database. For a different account only, create its database with `npx wrangler d1 create azan` and replace the single binding's ID with that account's ID.
 
-Create two **different** random secrets, at least 32 characters long. `BRIDGE_SECRET` authenticates only the Lambda bridge. `IDENTITY_SECRET` HMAC-pseudonymizes Alexa IDs and remains only on Cloudflare. Install through interactive secret prompts, never command-line literal values or committed variables:
+The optional Alexa bridge requires two **different** random secrets, at least 32 characters long. `BRIDGE_SECRET` authenticates only the Lambda bridge. `IDENTITY_SECRET` HMAC-pseudonymizes Alexa IDs and remains only on Cloudflare. Check whether they are already configured; do not overwrite existing secrets as part of this configuration fix. If absent, install them only with owner approval through interactive secret prompts, never command-line literal values or committed variables:
 
 ```sh
 npx wrangler secret put BRIDGE_SECRET
 npx wrangler secret put IDENTITY_SECRET
+```
+
+With separate approval to apply remote migrations and deploy:
+
+```sh
 npx wrangler d1 migrations apply azan --remote
 npm run deploy
 ```
@@ -66,9 +69,9 @@ Do not use the cloud profile as consent for unexpected scheduled audio. This rel
 
 ## 5. GitHub
 
-`.github/workflows/ci.yml` runs type-checks, tests, builds and a Wrangler **dry run** on pushes and pull requests. It does not deploy. The Lambda bundle is uploaded as a build artifact, not published as a skill. Do not commit generated bundles.
+`.github/workflows/ci.yml` runs type-checks, tests, builds and a Wrangler **dry run** on pushes and pull requests. That workflow does not deploy. Separately, Cloudflare Workers Builds is connected to this repository's production branch for Worker `azan`; pushing or merging to that branch may automatically deploy. Do not push or merge this configuration fix until the owner explicitly approves that production change. The Lambda bundle is uploaded as a build artifact, not published as a skill. Do not commit generated bundles.
 
-Recommended release flow: review PR, run CI, manually approve the production environment, apply migrations, deploy Worker, upload the Lambda bundle, and test the same version on a development Echo. Automated deployment may be added later with an environment-protected `workflow_dispatch`, least-privilege Cloudflare token, `CLOUDFLARE_ACCOUNT_ID`, and owner-approved AWS authentication. Do not add a production deploy on every PR, expose secrets to forks, or assume GitHub Actions scheduled jobs provide prayer-time precision.
+Release flow: review the configuration diff and run CI plus `npx wrangler deploy --dry-run --outdir dist/worker`. Confirm Cloudflare Workers Builds uses this repository, the intended production branch, and Worker `azan`. With owner approval, check/apply D1 migrations before publishing code that needs them, then either update the connected production branch to trigger Cloudflare's deployment or use the separately approved manual deployment above. Do not unintentionally run both release paths. After deployment, verify the `workers.dev` route is enabled, visit `https://azan.melkhouly.workers.dev` and `/api/v1/health`, and confirm the deployed version has the single `DB` binding and correct origin. Health alone does not prove D1 readiness; exercise the optional connection flow after its secrets and schema are ready. Upload the Lambda bundle and test the same version on a development Echo when configuring Alexa. Do not expose secrets to forks or assume GitHub Actions scheduled jobs provide prayer-time precision.
 
 ## Data, recovery, and rollback
 
@@ -86,4 +89,4 @@ Check local-only mode sends no location requests; validate your location, timezo
 
 ## Moving work into Documents
 
-The implementation was created in an isolated worktree, not the primary `~/Documents/azan` checkout. Once the coordinator/user approves it, first inspect that checkout for unrelated changes, then merge the implementation branch or cherry-pick its implementation commit there. Do not overwrite that directory or copy `node_modules`, `.dev.vars`, local D1 state, or generated bundles. Run `npm ci` and `npm run check` in the Documents checkout after integrating. No push or remote deployment is implied.
+This fix is prepared in an isolated worktree, not the `~/Documents/azan` checkout. The original implementation is already merged. The Documents copy has uncommitted changes, including another D1 binding with the real ID; do not overwrite or automatically reset it. After approval, the owner should inspect and preserve those changes, integrate the approved configuration commit, then resolve the configuration to exactly one `DB` binding with the ID above and `migrations_dir: "migrations"`. Preserve unrelated edits and private `.dev.vars`. Do not copy `node_modules`, local D1 state, or generated bundles. Run `npm ci`, `npm run check`, `npm run db:local`, and `npm run dev` there and confirm local links use localhost. Integrating a local copy is not permission to push the production branch or deploy.

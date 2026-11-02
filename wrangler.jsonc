@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "janat-azan",
+  "name": "azan",
+  "workers_dev": true,
   "main": "src/worker.ts",
   "compatibility_date": "2026-10-01",
   "assets": {
@@ -12,12 +13,12 @@
     {
       "binding": "DB",
       "database_name": "azan",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "df291c5d-1cad-4a05-8959-f6e2b5001949",
       "migrations_dir": "migrations"
     }
   ],
   "vars": {
-    "PUBLIC_ORIGIN": "http://localhost:8787"
+    "PUBLIC_ORIGIN": "https://azan.melkhouly.workers.dev"
   },
   "observability": { "enabled": false }
 }

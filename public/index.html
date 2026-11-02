@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Private prayer times, with an optional Alexa connection. No Janat account required.">
+  <title>Janat Azan | Prayer, simply</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="/">Janat <span>Azan</span></a><a href="https://janat.uably.com" rel="noreferrer">Back to Janat &#8599;</a></header>
+  <main>
+    <p class="eyebrow">A quieter setup. A clearer intention.</p>
+    <h1>Prayer, simply.</h1>
+    <p class="intro">Your prayer times, without an always-on computer. Start privately in this browser. Connect Alexa only when you choose.</p>
+    <div class="notice"><strong>Honest about Alexa.</strong> Next-prayer answers and adhan are voice-invoked. Automatic prayer-time playback is not available yet; it needs separate Amazon approval and device testing.</div>
+    <div class="layout">
+      <section class="panel" aria-labelledby="settings-heading">
+        <p class="eyebrow">01 / Your place</p><h2 id="settings-heading">Set your prayer location</h2>
+        <p>Enter approximate coordinates, or use your device location. Local calculations do not send your coordinates to this service.</p>
+        <button id="locate" type="button" class="secondary">Use my device location</button>
+        <form id="settings">
+          <div class="coordinates">
+            <label>Latitude<input name="latitude" type="number" step="any" min="-90" max="90" placeholder="e.g. 30.04" required></label>
+            <label>Longitude<input name="longitude" type="number" step="any" min="-180" max="180" placeholder="e.g. 31.24" required></label>
+          </div>
+          <label>IANA timezone<input name="timeZone" placeholder="e.g. Africa/Cairo" required aria-describedby="zone-note"></label>
+          <small id="zone-note">Check this matches your prayer location, not just this device.</small>
+          <label>Calculation method<select name="method">
+            <option value="MuslimWorldLeague">Muslim World League</option><option value="NorthAmerica">ISNA / North America</option>
+            <option value="Egyptian">Egyptian</option><option value="UmmAlQura">Umm al-Qura</option><option value="Karachi">Karachi</option><option value="Dubai">Dubai</option>
+          </select></label>
+          <label>Asr calculation<select name="madhab"><option value="standard">Standard (Shafi, Maliki, Hanbali)</option><option value="hanafi">Hanafi</option></select></label>
+          <button type="submit">Show my prayer times</button>
+        </form>
+        <p class="fine">High-latitude rule: middle of the night. Polar dates without valid solar events are reported as unavailable. Methods and local practice can differ; confirm with your mosque.</p>
+      </section>
+      <div>
+        <section class="panel" aria-labelledby="times-heading">
+          <p class="eyebrow">02 / Today</p><h2 id="times-heading">Make time for prayer</h2>
+          <p id="date-label">Choose your location to begin.</p>
+          <ol id="times"></ol>
+          <p id="next"></p>
+        </section>
+        <section class="panel connection" aria-labelledby="alexa-heading">
+          <p class="eyebrow">03 / Optional</p><h2 id="alexa-heading">Bring Alexa along</h2>
+          <p>After the owner sets up the development skill, say <strong>&ldquo;Alexa, ask Janat Azan to connect.&rdquo;</strong> Open the card in the Alexa app and copy its private link into a browser.</p>
+          <div id="connect-area" hidden>
+            <label class="consent"><input id="consent" type="checkbox">I choose to store my coordinates, timezone, calculation settings, and a pseudonymous Alexa connection in Cloudflare so Alexa can answer me. No fasting or Quran records are shared.</label>
+            <button id="connect" type="button">Connect Alexa with these settings</button>
+          </div>
+          <div id="manage-area" hidden>
+            <p>This browser holds a private management key. Do not share it. Clearing browser data loses that key; ask Alexa to connect again to regain control.</p>
+            <button id="update" type="button">Update connected settings</button>
+            <button id="delete" type="button" class="secondary">Disconnect and delete cloud settings</button>
+          </div>
+          <p class="fine">Cloud connection is opt-in. Anyone with its link/key can manage it. Amazon receives your skill requests and prayer answers. Deletion removes the active Cloudflare row; provider backups and Amazon history have separate retention.</p>
+        </section>
+      </div>
+    </div>
+    <p id="status" role="status" aria-live="polite"></p>
+    <footer>No Janat account. No third-party automation relay. No bundled recording.<br>Browser preferences stay on this device unless you explicitly connect Alexa.</footer>
+  </main>
+</body>
+</html>
